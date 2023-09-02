@@ -1,5 +1,83 @@
 [
     {
+        "name": "2021 WAC 2nd",
+        "by": "Maru Mallee",
+        "method": "Inverted",
+        "filter": "1/Rinsed/Aeropress paper",
+        "coffeeAmountInG": 18.0,
+        "grindSize": 7,
+        "waterTempInC": 93.0,
+        "waterAmountInG": 186.0,
+        "steps": [
+            {
+                "description": "ADD coffee"
+            },
+            {
+                "description": "ADD 150 g water (total: 150 g)",
+                "timeStart": "0:00",
+                "timeEnd": "0:12"
+            },
+            {
+                "description": "STIR firmly 20 times",
+                "timeStart": "0:12",
+                "timeEnd": "0:25"
+            },
+            {
+                "description": "ATTACH the cap",
+                "timeStart": "0:25",
+                "timeEnd": "0:30"
+            },
+            {
+                "description": "PUSH OUT excess air",
+                "timeStart": "0:30",
+                "timeEnd": "0:35"
+            },
+            {
+                "description": "WAIT",
+                "timeStart": "0:35",
+                "timeEnd": "1:50"
+            },
+            {
+                "description": "FLIP",
+                "timeStart": "1:50",
+                "timeEnd": "1:55"
+            },
+            {
+                "description": "SWIRL 3 times",
+                "timeStart": "1:55",
+                "timeEnd": "1:57"
+            },
+            {
+                "description": "TAP DOWN 2 times",
+                "timeStart": "1:57",
+                "timeEnd": "1:59"
+            },
+            {
+                "description": "PRESS until hissing",
+                "timeStart": "1:59",
+                "timeEnd": "2:15"
+            },
+            {
+                "description": "ADD 36 g room temperature water (total: 186 g)",
+                "timeStart": "2:15",
+                "timeEnd": "2:20"
+            },
+            {
+                "description": "SWIRL",
+                "timeStart": "2:20",
+                "timeEnd": "2:25"
+            },
+            {
+                "description": "COOL DOWN",
+                "timeStart": "2:25",
+                "timeEnd": "3:25"
+            },
+            {
+                "description": "ENJOY!"
+            }
+        ]
+    },
+    {
         "name": "2022 WAC 2nd",
         "by": "Simon Derutter",
         "method": "Standard",
