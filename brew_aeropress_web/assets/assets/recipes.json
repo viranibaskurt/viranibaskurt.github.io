@@ -1,0 +1,50 @@
+[
+    {
+        "name": "2022 WAC 2nd",
+        "by": "Simon Derutter",
+        "method": "Standard",
+        "filter": "1/Unrinsed/Aesir",
+        "coffeeAmountInG": 18.0,
+        "grindSize": 6,
+        "waterTempInC": 85.0,
+        "waterAmountInG": 156.0,
+        "steps": [
+            {
+                "description": "ADD coffee"
+            },
+            {
+                "description": "ADD 140g water",
+                "timeStart": "0:00",
+                "timeEnd": "0:10"
+            },
+            {
+                "description": "STIR 3 times",
+                "timeStart": "0:10",
+                "timeEnd": "0:15"
+            },
+            {
+                "description": "ATTACH the plunger",
+                "timeStart": "0:15",
+                "timeEnd": "0:20"
+            },
+            {
+                "description": "WAIT",
+                "timeStart": "0:20",
+                "timeEnd": "1:35"
+            },
+            {
+                "description": "PRESS until hissing (until the cup has 110 g)",
+                "timeStart": "1:35",
+                "timeEnd": "2:05"
+            },
+            {
+                "description": "ADD 46g water (total: 156 g)",
+                "timeStart": "2:05",
+                "timeEnd": "2:15"
+            },
+            {
+                "description": "ENJOY!"
+            }
+        ]
+    }
+]
