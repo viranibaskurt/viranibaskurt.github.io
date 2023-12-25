@@ -10,118 +10,72 @@
         "waterAmountInG": 186.0,
         "steps": [
             {
-                "description": "ADD coffee"
+                "description": "Add 18 g coffee",
+                "keyword": "ADD COFFEE"
             },
             {
-                "description": "ADD 150 g water (total: 150 g)",
-                "timeStart": "0:00",
-                "timeEnd": "0:12"
+                "description": "Add 150 g water (total: 150 g)",
+                "keyword": "ADD WATER",
+                "duration": 12
             },
             {
-                "description": "STIR firmly 20 times",
-                "timeStart": "0:12",
-                "timeEnd": "0:25"
+                "description": "Stir firmly 20 times",
+                "keyword": "STIR",
+                "duration": 13
             },
             {
-                "description": "ATTACH the cap",
-                "timeStart": "0:25",
-                "timeEnd": "0:30"
+                "description": "Attach the cap",
+                "keyword": "ATTACH CAP",
+                "duration": 5
             },
             {
-                "description": "PUSH OUT excess air",
-                "timeStart": "0:30",
-                "timeEnd": "0:35"
+                "description": "Push out excess air",
+                "keyword": "PUSH OUT",
+                "duration": 5
             },
             {
-                "description": "WAIT",
-                "timeStart": "0:35",
-                "timeEnd": "1:50"
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 80
             },
             {
-                "description": "FLIP",
-                "timeStart": "1:50",
-                "timeEnd": "1:55"
+                "description": "",
+                "keyword": "FLIP",
+                "duration": 5
             },
             {
-                "description": "SWIRL 3 times",
-                "timeStart": "1:55",
-                "timeEnd": "1:57"
+                "description": "Swirl 3 times",
+                "keyword": "SWIRL",
+                "duration": 5
             },
             {
-                "description": "TAP DOWN 2 times",
-                "timeStart": "1:57",
-                "timeEnd": "1:59"
+                "description": "Tap down 2 times",
+                "keyword": "TOP DOWN",
+                "duration": 5
             },
             {
-                "description": "PRESS until hissing",
-                "timeStart": "1:59",
-                "timeEnd": "2:15"
+                "description": "Press until hissing",
+                "keyword": "PRESS",
+                "duration": 5
             },
             {
-                "description": "ADD 36 g room temperature water (total: 186 g)",
-                "timeStart": "2:15",
-                "timeEnd": "2:20"
+                "description": "Dilute with 36 g room temperature water (total: 186 g)",
+                "keyword": "DILUTE",
+                "duration": 5
             },
             {
-                "description": "SWIRL",
-                "timeStart": "2:20",
-                "timeEnd": "2:25"
+                "description": "",
+                "keyword": "SWIRL",
+                "duration": 5
             },
             {
-                "description": "COOL DOWN",
-                "timeStart": "2:25",
-                "timeEnd": "3:25"
+                "description": "",
+                "keyword": "COOL DOWN",
+                "duration": 60
             },
             {
-                "description": "ENJOY!"
-            }
-        ]
-    },
-    {
-        "name": "2022 WAC 2nd",
-        "by": "Simon Derutter",
-        "method": "Standard",
-        "filter": "1/Unrinsed/Aesir",
-        "coffeeAmountInG": 18.0,
-        "grindSize": 6,
-        "waterTempInC": 85.0,
-        "waterAmountInG": 156.0,
-        "steps": [
-            {
-                "description": "ADD coffee"
-            },
-            {
-                "description": "ADD 140g water",
-                "timeStart": "0:00",
-                "timeEnd": "0:10"
-            },
-            {
-                "description": "STIR 3 times",
-                "timeStart": "0:10",
-                "timeEnd": "0:15"
-            },
-            {
-                "description": "ATTACH the plunger",
-                "timeStart": "0:15",
-                "timeEnd": "0:20"
-            },
-            {
-                "description": "WAIT",
-                "timeStart": "0:20",
-                "timeEnd": "1:35"
-            },
-            {
-                "description": "PRESS until hissing (until the cup has 110 g)",
-                "timeStart": "1:35",
-                "timeEnd": "2:05"
-            },
-            {
-                "description": "ADD 46g water (total: 156 g)",
-                "timeStart": "2:05",
-                "timeEnd": "2:15"
-            },
-            {
-                "description": "ENJOY!"
+                "description": "",
+                "keyword": "ENJOY!"
             }
         ]
     }
