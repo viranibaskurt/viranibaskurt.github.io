@@ -1,5 +1,75 @@
 [
     {
+        "name": "4:6",
+        "by": "Tetsu Kasuya",
+        "method": "Standard",
+        "filter": "1/Rinsed/Hario",
+        "coffeeAmountInG": 30.0,
+        "grindSize": 7,
+        "waterTempInC": 95.0,
+        "waterAmountInG": 450.0,
+        "steps": [
+            {
+                "description": "Add 30 g coffee",
+                "keyword": "ADD COFFEE"
+            },
+            {
+                "description": "Add 90 g water (total: 90 g)",
+                "keyword": "ADD WATER",
+                "duration": 15
+            },
+            {
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 30
+            },
+            {
+                "description": "Add 90 g water (total: 180 g)",
+                "keyword": "ADD WATER",
+                "duration": 15
+            },
+            {
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 30
+            },
+            {
+                "description": "Add 90 g water (total: 270 g)",
+                "keyword": "ADD WATER",
+                "duration": 15
+            },
+            {
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 30
+            },
+            {
+                "description": "Add 90 g water (total: 360 g)",
+                "keyword": "ADD WATER",
+                "duration": 15
+            },
+            {
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 30
+            },
+            {
+                "description": "Add 90 g water (total: 450 g)",
+                "keyword": "ADD WATER",
+                "duration": 15
+            },
+            {
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 30
+            },
+            {
+                "description": "",
+                "keyword": "ENJOY!"
+            }
+        ]
+    },
+    {
         "name": "2021 WAC 2nd",
         "by": "Maru Mallee",
         "method": "Inverted",
