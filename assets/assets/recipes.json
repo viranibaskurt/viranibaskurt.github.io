@@ -1,5 +1,80 @@
 [
     {
+        "name": "WAC23 1st",
+        "by": "Tay Wipvasutt",
+        "method": "Inverted",
+        "filter": "3/Rinsed/Aeropress paper",
+        "coffeeAmountInG": 18.0,
+        "grindSize": 6,
+        "waterTempInC": 89.0,
+        "waterAmountInG": 450.0,
+        "steps": [
+            {
+                "description": "Add 16 g coffee",
+                "keyword": "ADD COFFEE"
+            },
+            {
+                "description": "Add 100 g water (total: 100 g)",
+                "keyword": "ADD WATER",
+                "duration": 30
+            },
+            {
+                "description": "Stir with a chopstick",
+                "keyword": "STIR",
+                "duration": 10
+            },
+            {
+                "description": "Add 2 g coffee",
+                "keyword": "ADD COFFEE",
+                "duration": 10
+            },
+            {
+                "description": "Stir with a chopstick",
+                "keyword": "STIR",
+                "duration": 10
+            },
+            {
+                "description": "Remove any excess air",
+                "keyword": "REMOVE AIR",
+                "duration": 10
+            },
+            {
+                "description": "",
+                "keyword": "ATTACH CAP",
+                "duration": 10
+            },
+            {
+                "description": "",
+                "keyword": "WAIT",
+                "duration": 15
+            },
+            {
+                "description": "",
+                "keyword": "FLIP",
+                "duration": 5
+            },
+            {
+                "description": "The yield should be around 75g",
+                "keyword": "PRESS",
+                "duration": 30
+            },
+            {
+                "description": "Add 40 g ROOM TEMPERATURE water (total: 115g)",
+                "keyword": "ADD WATER",
+                "duration": 10
+            },
+            {
+                "description": "Add 40 g HOT water (total: 155g)",
+                "keyword": "ADD WATER",
+                "duration": 10
+            },
+            {
+                "description": "",
+                "keyword": "ENJOY!"
+            }
+        ]
+    },
+    {
         "name": "4:6",
         "by": "Tetsu Kasuya",
         "method": "Standard",
