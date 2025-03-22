@@ -1,7 +1,10 @@
 // import * as React from 'react'
 
 import { StyleSheet, Image, ScrollView, View, Text, Animated, Dimensions, Button, TouchableOpacity } from 'react-native'
+import { useFonts } from 'expo-font';
 import React, { useEffect, useRef, useState } from 'react'
+import * as SplashScreen from 'expo-splash-screen';
+import { useCallback } from 'react';
 
 // const recipeJson: string = `{
 //     "method": "Inverted",
@@ -54,7 +57,7 @@ const recipeJson: string = `{
   }`;
 
 
-const SourceCodeProRegular: string = 'Source Code Pro'
+const SourceCodeProRegular: string = 'SourceCodePro-Regular'
 
 const designWidth: number = 390.0;
 const designHeight: number = 844.0;
@@ -120,7 +123,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ infoLeft, infoRight }) => {
 }
 
 
-const App: React.FC = () => {
+export default function Page() {
 
     type Recipe = {
         name: string,
@@ -222,6 +225,22 @@ const App: React.FC = () => {
             }
         };
     }, []);
+
+    // const [loaded, error] = useFonts({
+    //     'SourceCodePro-Regular': require('brew-daily/assets/fonts/SourceCodePro-Regular.ttf'),
+    // });
+
+    // const onLayoutRootView = useCallback(async () => {
+    //     if (loaded) {
+    //         await SplashScreen.hideAsync();
+    //     }
+    // }, [loaded]);
+
+    // if (!loaded) {
+    //     return null;
+    // }
+
+    //TODO try getLoadedFonts(). the font name might be different
 
     return (
         <View style={[styles.rootContainer,]}>
@@ -342,7 +361,7 @@ const styles = StyleSheet.create(
             fontSize: 14,
             color: '#666666',
             textAlign: 'center',
-            // fontFamily:SourceCodeProRegular,
+            fontFamily: SourceCodeProRegular,
         },
         rootContainer: {
             // width: getRatio(designWidth),
@@ -459,4 +478,4 @@ const styles = StyleSheet.create(
     }
 )
 
-export default App;
+// export default App;

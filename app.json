@@ -31,10 +31,18 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "./assets/fonts/SourceCodePro/SourceCodePro.ttf"
+          ]
+        }
       ]
     ],
     "experiments": {
-      "typedRoutes": true      
+      "typedRoutes": true
     }
   }
 }

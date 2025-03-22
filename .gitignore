@@ -36,5 +36,6 @@ yarn-error.*
 *.tsbuildinfo
 
 .vs/
+.vscode/
 
 app-example
