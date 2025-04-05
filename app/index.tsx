@@ -6,6 +6,12 @@ import {
 } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 
+const HeaderTop: number = 76;
+const InfoViewHeight: number = 200;
+const HeaderBottomMargin: number = 24;
+const maxHeight = getRatio(220);
+const minHeight = getRatio(0);
+
 // const recipeJson: string = `{
 //     "method": "Inverted",
 //     "coffeeAmount": "16g",
@@ -60,10 +66,6 @@ const recipeJson: string = `{
 const SourceCodeProRegular: string = 'SourceCodePro-Regular'
 const SourceCodeProSemiBold: string = 'SourceCodePro-SemiBold'
 const SourceCodeProBold: string = 'SourceCodePro-Bold'
-
-
-const designWidth: number = 390.0;
-const designHeight: number = 844.0;
 
 const screenHeight: number = Dimensions.get('window').height;
 const screenWidth: number = Math.min(Dimensions.get('window').width, screenHeight * 0.46);
@@ -160,8 +162,7 @@ export default function Page() {
     const [timerState, setTimerState] = useState(TimerState.None);
 
     const scrollOffsetValueY = useRef(new Animated.Value(0)).current;
-    const maxHeight = getRatio(220);
-    const minHeight = getRatio(0);
+
 
     const animateHeaderHeight =
         scrollOffsetValueY.interpolate({
@@ -232,22 +233,29 @@ export default function Page() {
             }
         };
     }, []);
+    const [fakeItemLayout, setItemLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+
     return (
         <View style={[styles.rootContainer, { width: rootWidth }]}>
-            <View style={[styles.title,]}>
+            <View onLayout={event => {
+                const layout = event.nativeEvent.layout;
+                setItemLayout(layout);
+            }} style={[styles.titleContainer,]}>
                 <Text style={[styles.recipeName,]}>{recipe.name}</Text>
                 <Text style={[styles.author,]}>{recipe.author}</Text>
             </View>
-            <Animated.View style={[styles.header, { opacity: alpha, height: animateHeaderHeight }]}>
-
-                {/* <View style={styles.container}> */}
-                {/* <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} /> */}
-                {/* <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} /> */}
-                {/* <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} /> */}
-                {/* </View> */}
-
-                <View style={[styles.dummy]}></View>
+            <Animated.View style={[styles.containerFake, { opacity: 1, height: animateHeaderHeight }]}>
+                <InfoRow infoLeft={'fake'} infoRight={recipe.coffeeAmount} />
+                <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
+                <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
             </Animated.View>
+            {/* <Animated.View style={[styles.header, { opacity: alpha, height: animateHeaderHeight }]}>
+                <View style={styles.containerFake}>
+                    <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
+                    <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
+                    <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
+                </View>
+            </Animated.View> */}
             <View style={[styles.stepsContainer]}>
                 <View style={[styles.stepsHeaderView]}>
                     <Text style={[styles.stepsText]}>Steps</Text>
@@ -304,7 +312,13 @@ export default function Page() {
                     </View>
                 )}
             </View>
+            <Animated.View style={[styles.container, { opacity: alpha, top: fakeItemLayout.y + fakeItemLayout.height + HeaderBottomMargin }]}>
+                <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
+                <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
+                <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
+            </Animated.View>
         </View >
+
     );
 }
 
@@ -325,11 +339,35 @@ const styles = StyleSheet.create(
             alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
             justifyContent: 'center',
         },
-        container: {
-            flex: 1,
+        infoContainer: {
+            backgroundColor: 'powderblue',
+            position: 'absolute',
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: '#FFFFFF',
+            // top: HeaderTop + HeaderSize,
+            left: 0,
+            right: 0,
+            // paddingTop: 0,
+            zIndex: 1,
+        },
+        container: {
+            // flex: 1,
+            position: 'absolute',
+            zIndex: -1,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'powderblue',
+            height: maxHeight,
+            width:300,
+        },
+        containerFake: {
+            // flex: 1,
+            justifyContent: 'center',
+            // height: InfoViewHeight,
+            alignItems: 'center',
+            // backgroundColor: 'red',
+            width:300,
+
         },
         row: {
             flexDirection: 'row',
@@ -337,7 +375,7 @@ const styles = StyleSheet.create(
             paddingVertical: getRatio(10),
             paddingHorizontal: getRatio(60),
             justifyContent: 'space-evenly',
-            backgroundColor: 'pink'
+            // backgroundColor: 'pink'
         },
         column: {
             width: getRatio(98),
@@ -345,19 +383,12 @@ const styles = StyleSheet.create(
             alignItems: 'center',
             justifyContent: 'center',
             flex: 1,
-
         },
-        header: {
-            // backgroundColor: 'powderblue',
+        animatedView: {
             justifyContent: 'center',
             alignItems: 'center',
-            left: 0,
-            right: 0,
-            paddingTop: 0,
-        },
-        dummy: {
-            backgroundColor: 'red',
-            // flex: 1,
+            top: 0,
+            bottom: 0,
         },
         circle: {
             width: 10,
@@ -378,9 +409,10 @@ const styles = StyleSheet.create(
             textAlign: 'center',
             fontFamily: SourceCodeProRegular,
         },
-        title: {
-            marginTop: getRatio(76),
-            marginBottom: getRatio(24),
+        titleContainer: {
+            backgroundColor: 'red',
+            marginTop: HeaderTop,
+            marginBottom: HeaderBottomMargin,
         },
         recipeName: {
             textAlign: 'center',
