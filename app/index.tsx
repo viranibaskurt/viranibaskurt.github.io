@@ -8,7 +8,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 const HeaderTop: number = 76;
 const InfoViewHeight: number = 200;
-const HeaderBottomMargin: number = 24;
+const HeaderBottomMargin: number = 4;
 const maxHeight = getRatio(220);
 const minHeight = getRatio(0);
 
@@ -177,6 +177,19 @@ export default function Page() {
         extrapolate: 'clamp'
     })
 
+    const cornerRadius = scrollOffsetValueY.interpolate({
+        inputRange: [0, (maxHeight - minHeight) * 0.01, maxHeight - minHeight],
+        outputRange: [0.0, 5, 15.0],
+        extrapolate: 'clamp'
+    })
+
+    const backgroundColor = scrollOffsetValueY.interpolate({
+        inputRange: [0, 0.01],
+        outputRange: ['#FFFFFF', '#F1F1F1'],
+        extrapolate: 'clamp',
+    });
+
+
     //#region timer functions
 
     // State for the elapsed time in seconds
@@ -236,50 +249,49 @@ export default function Page() {
     const [fakeItemLayout, setItemLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
     return (
-        <View style={[styles.rootContainer, { width: rootWidth }]}>
-            <View onLayout={event => {
-                const layout = event.nativeEvent.layout;
-                setItemLayout(layout);
-            }} style={[styles.titleContainer,]}>
-                <Text style={[styles.recipeName,]}>{recipe.name}</Text>
-                <Text style={[styles.author,]}>{recipe.author}</Text>
-            </View>
-            <Animated.View style={[styles.containerFake, { opacity: 1, height: animateHeaderHeight }]}>
-                <InfoRow infoLeft={'fake'} infoRight={recipe.coffeeAmount} />
-                <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
-                <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
-            </Animated.View>
-            {/* <Animated.View style={[styles.header, { opacity: alpha, height: animateHeaderHeight }]}>
-                <View style={styles.containerFake}>
-                    <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
+        <View style={[styles.root]}>
+            <View style={[styles.rootContainer, { width: rootWidth }]}>
+                <View onLayout={event => {
+                    const layout = event.nativeEvent.layout;
+                    setItemLayout(layout);
+                }} style={[styles.titleContainer,]}>
+                    <Text style={[styles.recipeName,]}>{recipe.name}</Text>
+                    <Text style={[styles.author,]}>{recipe.author}</Text>
+                </View>
+                <Animated.View style={[styles.containerFake, { opacity: 0, height: animateHeaderHeight }]}>
+                    <InfoRow infoLeft={'fake'} infoRight={recipe.coffeeAmount} />
                     <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
                     <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
-                </View>
-            </Animated.View> */}
-            <View style={[styles.stepsContainer]}>
-                <View style={[styles.stepsHeaderView]}>
-                    <Text style={[styles.stepsText]}>Steps</Text>
-                    <Text style={[styles.stepsText]}>{formatTime(time)}</Text>
-                </View>
-                <ScrollView showsVerticalScrollIndicator={false}
-                    scrollEventThrottle={16}
-                    onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollOffsetValueY } } }], { useNativeDriver: false })}
-                >
-                    {
-                        recipe.steps.map((step, index) => (
-                            <View key={index} style={styles.stepView} >
-                                <View style={[styles.stepRowView]}>
-                                    <Text style={[styles.stepNameText]}>{step.name}</Text>
-                                    <Text style={[styles.stepsTimeText]}>{step.time}</Text>
+                </Animated.View>
+                <Animated.View style={[styles.stepsContainer,
+                {
+                    borderTopLeftRadius: cornerRadius, borderTopRightRadius: cornerRadius,
+
+                }]}>
+                    <View style={[styles.stepsHeaderView]}>
+                        <Text style={[styles.stepsText]}>Steps</Text>
+                        <Text style={[styles.stepsText]}>{formatTime(time)}</Text>
+                    </View>
+                    <ScrollView showsVerticalScrollIndicator={false}
+                        scrollEventThrottle={16}
+                        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollOffsetValueY } } }], { useNativeDriver: false })}>
+                        {
+                            recipe.steps.map((step, index) => (
+                                <View key={index} style={styles.stepView} >
+                                    <View style={[styles.stepRowView]}>
+                                        <Text style={[styles.stepNameText]}>{step.name}</Text>
+                                        <Text style={[styles.stepsTimeText]}>{step.time}</Text>
+                                    </View>
+                                    <Text style={[styles.stepsDescText]}>{step.desc}</Text>
+                                    <View
+                                        style={[styles.horizontalLine]}></View>
                                 </View>
-                                <Text style={[styles.stepsDescText]}>{step.desc}</Text>
-                                <View
-                                    style={[styles.horizontalLine]}></View>
-                            </View>
-                        ))
-                    }
-                </ScrollView>
-            </View>
+                            ))
+                        }
+                    </ScrollView>
+                </Animated.View>
+
+            </View >
             <View style={[styles.buttonsContainer]}>
                 {timerState === TimerState.None && (
                     <CustomButton title='Start' onPress={() => {
@@ -312,13 +324,13 @@ export default function Page() {
                     </View>
                 )}
             </View>
-            <Animated.View style={[styles.container, { opacity: alpha, top: fakeItemLayout.y + fakeItemLayout.height + HeaderBottomMargin }]}>
+            <Animated.View style={[styles.container, { opacity: 1, top: fakeItemLayout.y + fakeItemLayout.height + HeaderBottomMargin }]}>
                 <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
                 <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
                 <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
             </Animated.View>
-        </View >
-
+            <Animated.View style={[styles.background, { backgroundColor: backgroundColor }]}></Animated.View>
+        </View>
     );
 }
 
@@ -330,6 +342,24 @@ https://aureliomerenda.medium.com/create-a-native-web-app-with-react-native-web-
 
 const styles = StyleSheet.create(
     {
+        background: {
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            zIndex: -2,
+            alignSelf: 'stretch',
+            alignItems: 'center',
+            justifyContent: 'center',
+        },
+        root: {
+            // width: getRatio(designWidth),
+            // height: getRatio(designHeight),
+            width: '100%',
+            height: '100%',
+            alignItems: 'center',
+            alignSelf: 'center',
+            justifyContent: 'center',
+        },
         rootContainer: {
             // width: getRatio(designWidth),
             // height: getRatio(designHeight),
@@ -338,6 +368,7 @@ const styles = StyleSheet.create(
             alignItems: 'center',
             alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
             justifyContent: 'center',
+            // backgroundColor: '#FFFFFF'
         },
         infoContainer: {
             backgroundColor: 'powderblue',
@@ -356,9 +387,9 @@ const styles = StyleSheet.create(
             zIndex: -1,
             justifyContent: 'center',
             alignItems: 'center',
-            backgroundColor: 'powderblue',
+            // backgroundColor: 'powderblue',
             height: maxHeight,
-            width:300,
+            width: 300,
         },
         containerFake: {
             // flex: 1,
@@ -366,7 +397,7 @@ const styles = StyleSheet.create(
             // height: InfoViewHeight,
             alignItems: 'center',
             // backgroundColor: 'red',
-            width:300,
+            width: 300,
 
         },
         row: {
@@ -410,7 +441,6 @@ const styles = StyleSheet.create(
             fontFamily: SourceCodeProRegular,
         },
         titleContainer: {
-            backgroundColor: 'red',
             marginTop: HeaderTop,
             marginBottom: HeaderBottomMargin,
         },
@@ -435,7 +465,7 @@ const styles = StyleSheet.create(
             marginBottom: getRatio(16),
             paddingRight: getRatio(40),
             paddingLeft: getRatio(40),
-
+            backgroundColor: '#FFFFFF',
         },
         stepsHeaderView: {
             flexDirection: 'row',
@@ -488,7 +518,9 @@ const styles = StyleSheet.create(
             alignSelf: 'center',
         },
         buttonsContainer: {
-            marginBottom: getRatio(48),
+            position:'absolute',
+            bottom:48,
+            // marginBottom: getRatio(48),
         },
         buttonRow: {
             flexDirection: 'row',
