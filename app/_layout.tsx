@@ -10,6 +10,8 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
     const [loaded, error] = useFonts({
         'SourceCodePro-Regular': require('../assets/fonts/SourceCodePro-Regular.ttf'),
+        'SourceCodePro-SemiBold': require('../assets/fonts/SourceCodePro-SemiBold.ttf'),
+        'SourceCodePro-Bold': require('../assets/fonts/SourceCodePro-Bold.ttf'),
     });
 
     useEffect(() => {

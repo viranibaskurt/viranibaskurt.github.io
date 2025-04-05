@@ -1,10 +1,10 @@
 // import * as React from 'react'
 
-import { StyleSheet, Image, ScrollView, View, Text, Animated, Dimensions, Button, TouchableOpacity } from 'react-native'
-import { useFonts } from 'expo-font';
+import {
+    StyleSheet, Image, ScrollView, View, Text, Animated,
+    Platform, Dimensions, Button, TouchableOpacity
+} from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import * as SplashScreen from 'expo-splash-screen';
-import { useCallback } from 'react';
 
 // const recipeJson: string = `{
 //     "method": "Inverted",
@@ -58,6 +58,9 @@ const recipeJson: string = `{
 
 
 const SourceCodeProRegular: string = 'SourceCodePro-Regular'
+const SourceCodeProSemiBold: string = 'SourceCodePro-SemiBold'
+const SourceCodeProBold: string = 'SourceCodePro-Bold'
+
 
 const designWidth: number = 390.0;
 const designHeight: number = 844.0;
@@ -125,6 +128,9 @@ const InfoRow: React.FC<InfoRowProps> = ({ infoLeft, infoRight }) => {
 
 export default function Page() {
 
+    const { height: screenHeight } = Dimensions.get('window');
+    const rootWidth = Platform.OS == 'web' ? screenHeight * (9 / 16) : '100%';
+
     type Recipe = {
         name: string,
         author: string,
@@ -170,6 +176,8 @@ export default function Page() {
         extrapolate: 'clamp'
     })
 
+    //#region timer functions
+
     // State for the elapsed time in seconds
     const [time, setTime] = useState<number>(0);
     // State to track whether the timer is active
@@ -178,8 +186,6 @@ export default function Page() {
     const [isPaused, setIsPaused] = useState<boolean>(false);
     // A ref to store the interval ID (the type depends on the environment)
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-
 
     // Function to start the timer
     const handleStart = () => {
@@ -216,6 +222,7 @@ export default function Page() {
         setIsPaused(false);
         setTime(0);
     };
+    //#endregion timer functions
 
     // Cleanup interval when component unmounts
     useEffect(() => {
@@ -225,35 +232,21 @@ export default function Page() {
             }
         };
     }, []);
-
-    // const [loaded, error] = useFonts({
-    //     'SourceCodePro-Regular': require('brew-daily/assets/fonts/SourceCodePro-Regular.ttf'),
-    // });
-
-    // const onLayoutRootView = useCallback(async () => {
-    //     if (loaded) {
-    //         await SplashScreen.hideAsync();
-    //     }
-    // }, [loaded]);
-
-    // if (!loaded) {
-    //     return null;
-    // }
-
-    //TODO try getLoadedFonts(). the font name might be different
-
     return (
-        <View style={[styles.rootContainer,]}>
+        <View style={[styles.rootContainer, { width: rootWidth }]}>
             <View style={[styles.title,]}>
                 <Text style={[styles.recipeName,]}>{recipe.name}</Text>
                 <Text style={[styles.author,]}>{recipe.author}</Text>
             </View>
             <Animated.View style={[styles.header, { opacity: alpha, height: animateHeaderHeight }]}>
-                <View style={styles.container}>
-                    <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
-                    <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
-                    <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
-                </View>
+
+                {/* <View style={styles.container}> */}
+                {/* <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} /> */}
+                {/* <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} /> */}
+                {/* <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} /> */}
+                {/* </View> */}
+
+                <View style={[styles.dummy]}></View>
             </Animated.View>
             <View style={[styles.stepsContainer]}>
                 <View style={[styles.stepsHeaderView]}>
@@ -323,6 +316,15 @@ https://aureliomerenda.medium.com/create-a-native-web-app-with-react-native-web-
 
 const styles = StyleSheet.create(
     {
+        rootContainer: {
+            // width: getRatio(designWidth),
+            // height: getRatio(designHeight),
+            // flex: 1,
+            height: '100%',
+            alignItems: 'center',
+            alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
+            justifyContent: 'center',
+        },
         container: {
             flex: 1,
             justifyContent: 'center',
@@ -335,6 +337,7 @@ const styles = StyleSheet.create(
             paddingVertical: getRatio(10),
             paddingHorizontal: getRatio(60),
             justifyContent: 'space-evenly',
+            backgroundColor: 'pink'
         },
         column: {
             width: getRatio(98),
@@ -343,6 +346,18 @@ const styles = StyleSheet.create(
             justifyContent: 'center',
             flex: 1,
 
+        },
+        header: {
+            // backgroundColor: 'powderblue',
+            justifyContent: 'center',
+            alignItems: 'center',
+            left: 0,
+            right: 0,
+            paddingTop: 0,
+        },
+        dummy: {
+            backgroundColor: 'red',
+            // flex: 1,
         },
         circle: {
             width: 10,
@@ -362,21 +377,6 @@ const styles = StyleSheet.create(
             color: '#666666',
             textAlign: 'center',
             fontFamily: SourceCodeProRegular,
-        },
-        rootContainer: {
-            // width: getRatio(designWidth),
-            // height: getRatio(designHeight),
-            flex: 1,
-            alignItems: 'center',
-            justifyContent: 'center'
-        },
-        header: {
-            // backgroundColor: 'powderblue',
-            justifyContent: 'center',
-            alignItems: 'center',
-            left: 0,
-            right: 0,
-            paddingTop: 0,
         },
         title: {
             marginTop: getRatio(76),
@@ -427,7 +427,7 @@ const styles = StyleSheet.create(
         },
         stepNameText: {
             fontSize: 14,
-            fontFamily: SourceCodeProRegular,
+            fontFamily: SourceCodeProSemiBold,
             fontWeight: '600',
             color: '#666666',
         },
