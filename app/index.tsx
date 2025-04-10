@@ -1,4 +1,15 @@
-// import * as React from 'react'
+/*
+Deploying 
+git remote remove origin
+git remote add origin https://github.com/viranibaskurt/viranibaskurt.github.io.git
+npm run deploy
+
+in viranibaskurt.github.io.git repo
+git reset --hard origin/gh-pages 
+
+git remote remove origin
+git remote add origin https://github.com/viranibaskurt/brew-daily.git
+*/
 
 import {
     StyleSheet, Image, ScrollView, View, Text, Animated,
@@ -7,10 +18,11 @@ import {
 import React, { useEffect, useRef, useState } from 'react'
 
 const HeaderTop: number = 76;
-const InfoViewHeight: number = 200;
-const HeaderBottomMargin: number = 4;
-const maxHeight = getRatio(220);
+const HeaderBottomMargin: number = 12;
+const maxHeight = getRatio(200);
 const minHeight = getRatio(0);
+const TimeControlButtonBottomMargin: number = 48;
+const TimeControlButtonHeight: number = 50;
 
 // const recipeJson: string = `{
 //     "method": "Inverted",
@@ -21,17 +33,6 @@ const minHeight = getRatio(0);
 //     "temperature": "89°C",
 //     "steps": [
 //       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" },
-//       { "name": "Add Water", "desc": "Add 100 g water", "time": "30s" }
 //     ]
 //   }`;
 
@@ -42,22 +43,21 @@ const recipeJson: string = `{
     "coffeeAmount": "18g",
     "paper": "1/Aesir/Rinsed",
     "grindSize": "7/10 Medium",
-    "waterAmount": "450g",
+    "waterAmount": "130g",
     "temperature": "96°C",
     "steps": [
-      { "name": "Add Water", "desc": "Add 50 g water using melodrip", "time": "5" },
+      { "name": "Add Water", "desc": "Add 50g water using melodrip", "time": "5" },
       { "name": "Wait", "desc": "Let it bloom", "time": "30" },
-      { "name": "Add Water", "desc": "Add 50 g water", "time": "5" },
-      { "name": "Stir", "desc": "Stir in a North-South-East-West motion", "time": "10" },
-      { "name": "Wait", "desc": "", "time": "30" },
-      { "name": "Attach the Cap", "desc": "", "time": "5" },
-      { "name": "Remove Excessive Air", "desc": "Remove excessive air gently", "time": "10" },
+      { "name": "Add Water", "desc": "Add 50g water", "time": "5" },
+      { "name": "Stir", "desc": "Stir in NSEW  motion", "time": "10" },
+      { "name": "Wait", "desc": "Give it some time", "time": "30" },
+      { "name": "Attach the Cap", "desc": "Attach cap with filter to AeroPress", "time": "5" },
+      { "name": "Remove Air", "desc": "Remove excessive air gently", "time": "10" },
       { "name": "Swirl", "desc": "Swirl gently", "time": "5" },
       { "name": "Flip", "desc": "Flip by holding the plunger", "time": "5" },
       { "name": "Press", "desc": "Press until you have approx. 76-79g", "time": "30" },
-      { "name": "Dilute", "desc": "Add 100 g water", "time": "30" },
-      { "name": "Add Water", "desc": "Add 130 g water", "time": "5" },
-      { "name": "Add Room Temperature Water", "desc": "Add 20 g room temperature water", "time": "5" },
+      { "name": "Dilute", "desc": "Add 50g water", "time": "30" },
+      { "name": "Add Water", "desc": "Add 20g room temperature water", "time": "5" },
       { "name": "Enjoy", "desc": "", "time": "" }
     ]
   }`;
@@ -127,7 +127,6 @@ const InfoRow: React.FC<InfoRowProps> = ({ infoLeft, infoRight }) => {
     );
 }
 
-
 export default function Page() {
 
     const { height: screenHeight } = Dimensions.get('window');
@@ -144,7 +143,6 @@ export default function Page() {
         temperature: string,
         steps: StepsInfo[],
     }
-
 
     type StepsInfo = {
         name: string,
@@ -163,7 +161,6 @@ export default function Page() {
 
     const scrollOffsetValueY = useRef(new Animated.Value(0)).current;
 
-
     const animateHeaderHeight =
         scrollOffsetValueY.interpolate({
             inputRange: [0, maxHeight - minHeight],
@@ -171,15 +168,9 @@ export default function Page() {
             extrapolate: 'clamp'
         });
 
-    const alpha = scrollOffsetValueY.interpolate({
-        inputRange: [0, (maxHeight - minHeight) * 0.5, maxHeight - minHeight],
-        outputRange: [1.0, 0.0, 0.0],
-        extrapolate: 'clamp'
-    })
-
     const cornerRadius = scrollOffsetValueY.interpolate({
         inputRange: [0, (maxHeight - minHeight) * 0.01, maxHeight - minHeight],
-        outputRange: [0.0, 5, 15.0],
+        outputRange: [0.0, 10.0, 15.0],
         extrapolate: 'clamp'
     })
 
@@ -288,6 +279,7 @@ export default function Page() {
                                 </View>
                             ))
                         }
+                        <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} />
                     </ScrollView>
                 </Animated.View>
 
@@ -326,7 +318,7 @@ export default function Page() {
             </View>
             <Animated.View style={[styles.container, { opacity: 1, top: fakeItemLayout.y + fakeItemLayout.height + HeaderBottomMargin }]}>
                 <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
-                <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
+                <InfoRow infoLeft={recipe.paper} infoRight={recipe.grindSize} />
                 <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
             </Animated.View>
             <Animated.View style={[styles.background, { backgroundColor: backgroundColor }]}></Animated.View>
@@ -468,6 +460,8 @@ const styles = StyleSheet.create(
             backgroundColor: '#FFFFFF',
         },
         stepsHeaderView: {
+            marginTop: 12,
+            marginBottom: 4,
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'space-between',
@@ -518,9 +512,8 @@ const styles = StyleSheet.create(
             alignSelf: 'center',
         },
         buttonsContainer: {
-            position:'absolute',
-            bottom:48,
-            // marginBottom: getRatio(48),
+            position: 'absolute',
+            bottom: TimeControlButtonBottomMargin,
         },
         buttonRow: {
             flexDirection: 'row',
@@ -530,7 +523,7 @@ const styles = StyleSheet.create(
             borderRadius: 8,
             borderWidth: 1,
             width: getRatio(224),
-            height: getRatio(50),
+            height: TimeControlButtonHeight,
             justifyContent: 'center',
         },
         buttonText: {
