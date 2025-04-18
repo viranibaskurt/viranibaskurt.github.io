@@ -128,7 +128,6 @@ const InfoRow: React.FC<InfoRowProps> = ({ infoLeft, infoRight }) => {
 }
 
 export default function Page() {
-
     const { height: screenHeight } = Dimensions.get('window');
     const rootWidth = Platform.OS == 'web' ? screenHeight * (9 / 16) : '100%';
 
@@ -186,7 +185,7 @@ export default function Page() {
     // State for the elapsed time in seconds
     const [time, setTime] = useState<number>(0);
     // State to track whether the timer is active
-    const [isActive, setIsActive] = useState<boolean>(false);
+    const [isRunning, setIsRunning] = useState<boolean>(false);
     // State to track whether the timer is paused
     const [isPaused, setIsPaused] = useState<boolean>(false);
     // A ref to store the interval ID (the type depends on the environment)
@@ -194,7 +193,7 @@ export default function Page() {
 
     // Function to start the timer
     const handleStart = () => {
-        setIsActive(true);
+        setIsRunning(true);
         setIsPaused(false);
         intervalRef.current = setInterval(() => {
             setTime(prevTime => prevTime + 1);
@@ -223,13 +222,12 @@ export default function Page() {
         if (intervalRef.current) {
             clearInterval(intervalRef.current);
         }
-        setIsActive(false);
+        setIsRunning(false);
         setIsPaused(false);
         setTime(0);
     };
     //#endregion timer functions
 
-    // Cleanup interval when component unmounts
     useEffect(() => {
         return () => {
             if (intervalRef.current) {
@@ -237,7 +235,21 @@ export default function Page() {
             }
         };
     }, []);
+    // Cleanup interval when component unmounts
     const [fakeItemLayout, setItemLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+
+    //TODO reset count or do not count when is not running
+    const [count, setCount] = useState(0);
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (isRunning) {
+                setCount(c => c + 1);
+            }
+        }, 1000);
+        return () => clearInterval(intervalId);
+    }, [isRunning]);
+
+    const [activeStepIndex, setActiveStep] = useState(0);
 
     return (
         <View style={[styles.root]}>
@@ -267,17 +279,23 @@ export default function Page() {
                         scrollEventThrottle={16}
                         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollOffsetValueY } } }], { useNativeDriver: false })}>
                         {
-                            recipe.steps.map((step, index) => (
-                                <View key={index} style={styles.stepView} >
-                                    <View style={[styles.stepRowView]}>
-                                        <Text style={[styles.stepNameText]}>{step.name}</Text>
-                                        <Text style={[styles.stepsTimeText]}>{step.time}</Text>
+                            recipe.steps.map(
+                                (step, index) => {
+                                    const isActive: boolean = isRunning && (index === activeStepIndex);
+                                    const stepTime: number = isActive ? (+step.time - count) : +step.time;
+                                    //TODO create idle style
+                                    return <View key={index} style={styles.stepView}>
+                                        <View style={[{ opacity: !isRunning || isActive ? 1 : 0.5 }]}>
+                                            <View style={[styles.stepRowView]}>
+                                                <Text style={[styles.stepNameText, isActive && styles.activeStepNameText]}>{step.name}</Text>
+                                                <Text style={[styles.stepsTimeText, isActive && styles.activeStepsTimeText]}>{stepTime}</Text>
+                                            </View>
+                                            <Text style={[styles.stepsDescText, isActive && styles.activeStepsDescText]}>{step.desc}</Text>
+                                        </View>
+                                        <View style={styles.horizontalLine} />
                                     </View>
-                                    <Text style={[styles.stepsDescText]}>{step.desc}</Text>
-                                    <View
-                                        style={[styles.horizontalLine]}></View>
-                                </View>
-                            ))
+                                }
+                            )
                         }
                         <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} />
                     </ScrollView>
@@ -474,12 +492,29 @@ const styles = StyleSheet.create(
             flexWrap: 'wrap',
             justifyContent: 'space-between',
             marginBottom: getRatio(12),
-
         },
         stepsText: {
             fontSize: 18,
             color: '#000000',
             fontFamily: SourceCodeProRegular
+        },
+        activeStepNameText: {
+            fontSize: 20,
+            fontFamily: SourceCodeProSemiBold,
+            fontWeight: '600',
+            color: '#666666',
+        },
+        activeStepsDescText: {
+            fontSize: 18,
+            fontFamily: SourceCodeProRegular,
+            color: '#666666',
+            marginBottom: getRatio(12),
+        },
+        activeStepsTimeText: {
+            fontSize: 14,
+            color: '#181818',
+            fontFamily: SourceCodeProRegular,
+            marginRight: getRatio(4),
         },
         stepNameText: {
             fontSize: 14,
