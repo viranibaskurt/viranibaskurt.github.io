@@ -16,6 +16,7 @@ import {
     Platform, Dimensions, Button, TouchableOpacity
 } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
+import { TapGestureHandler, State } from 'react-native-gesture-handler';
 
 const HeaderTop: number = 76;
 const HeaderBottomMargin: number = 12;
@@ -199,6 +200,17 @@ export default function Page() {
         setActiveStepIndex(0);
     };
 
+    const handleDoubleTap = (index: number) => {
+        console.log("double tap");
+        if(timerState===TimerState.None)
+        {
+            return;
+        }
+        setActiveStepIndex(index);
+        setRemainingTime(+recipe.steps[index].time);
+
+    }
+
     const [activeStepIndex, setActiveStepIndex] = useState(0); // TODO: should it be a state
     const [remaningTime, setRemainingTime] = useState<number>(+recipe.steps[activeStepIndex].time);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -236,7 +248,6 @@ export default function Page() {
 
     }, [timerState])
 
-
     return (
         <View style={[styles.root]}>
             <View style={[styles.rootContainer, { width: rootWidth }]}>
@@ -271,23 +282,33 @@ export default function Page() {
                                     const isActive: boolean = isStarted && (index === activeStepIndex);
                                     const stepTime: number = isActive ? (remaningTime) : +step.time;
 
-                                    return <View key={index} style={styles.stepView}>
-                                        <View style={[{ opacity: !isStarted || isActive ? 1 : 0.5 }]}>
-                                            <View style={[styles.stepRowView]}>
-                                                <Text style={[styles.stepNameText, isActive && styles.activeStepNameText]}>{step.name}</Text>
-                                                <Text style={[styles.stepsTimeText, isActive && styles.activeStepsTimeText]}>{stepTime}</Text>
+                                    return <TapGestureHandler
+                                        key={index}
+                                        numberOfTaps={2}
+                                        maxDelayMs={300}
+                                        onHandlerStateChange={
+                                            ({ nativeEvent }) => {
+                                                if (nativeEvent.state === State.ACTIVE) {
+                                                    handleDoubleTap(index);
+                                                }
+                                            }}>
+                                        <View key={index} style={styles.stepView}>
+                                            <View style={[{ opacity: !isStarted || isActive ? 1 : 0.5 }]}>
+                                                <View style={[styles.stepRowView]}>
+                                                    <Text style={[styles.stepNameText, isActive && styles.activeStepNameText]}>{step.name}</Text>
+                                                    <Text style={[styles.stepsTimeText, isActive && styles.activeStepsTimeText]}>{+step.time !== 0 ? stepTime : ""}</Text>
+                                                </View>
+                                                <Text style={[styles.stepsDescText, isActive && styles.activeStepsDescText]}>{step.desc}</Text>
                                             </View>
-                                            <Text style={[styles.stepsDescText, isActive && styles.activeStepsDescText]}>{step.desc}</Text>
+                                            <View style={styles.horizontalLine} />
                                         </View>
-                                        <View style={styles.horizontalLine} />
-                                    </View>
+                                    </TapGestureHandler>
                                 }
                             )
                         }
                         <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} />
                     </ScrollView>
                 </Animated.View>
-
             </View >
             <View style={[styles.buttonsContainer]}>
                 {timerState === TimerState.None && (
