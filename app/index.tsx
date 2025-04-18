@@ -151,15 +151,7 @@ export default function Page() {
 
     const recipe: Recipe = JSON.parse(recipeJson);
 
-    enum TimerState {
-        None,
-        Running,
-        Pause,
-    }
-    const [timerState, setTimerState] = useState(TimerState.None);
-
     const scrollOffsetValueY = useRef(new Animated.Value(0)).current;
-
     const animateHeaderHeight =
         scrollOffsetValueY.interpolate({
             inputRange: [0, maxHeight - minHeight],
@@ -178,78 +170,72 @@ export default function Page() {
         outputRange: ['#FFFFFF', '#F1F1F1'],
         extrapolate: 'clamp',
     });
+    const [fakeItemLayout, setItemLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
+    enum TimerState {
+        None,
+        Running,
+        Pause,
+    }
+    const [timerState, setTimerState] = useState(TimerState.None);
 
-    //#region timer functions
-
-    // State for the elapsed time in seconds
-    const [time, setTime] = useState<number>(0);
-    // State to track whether the timer is active
-    const [isRunning, setIsRunning] = useState<boolean>(false);
-    // State to track whether the timer is paused
-    const [isPaused, setIsPaused] = useState<boolean>(false);
-    // A ref to store the interval ID (the type depends on the environment)
-    const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-    // Function to start the timer
     const handleStart = () => {
-        setIsRunning(true);
-        setIsPaused(false);
-        intervalRef.current = setInterval(() => {
-            setTime(prevTime => prevTime + 1);
-        }, 1000);
+        setTimerState(TimerState.Running);
+        setActiveStepIndex(0);
+        setRemainingTime(+recipe.steps[activeStepIndex].time);
     };
 
-    // Function to pause the timer
     const handlePause = () => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-            intervalRef.current = null;
-        }
-        setIsPaused(true);
+        setTimerState(TimerState.Pause);
     };
 
-    // Function to resume the timer
     const handleResume = () => {
-        setIsPaused(false);
-        intervalRef.current = setInterval(() => {
-            setTime(prevTime => prevTime + 1);
-        }, 1000);
+        setTimerState(TimerState.Running);
     };
 
     // Function to reset the timer
     const handleReset = () => {
-        if (intervalRef.current) {
-            clearInterval(intervalRef.current);
-        }
-        setIsRunning(false);
-        setIsPaused(false);
-        setTime(0);
+        setTimerState(TimerState.None);
+        setActiveStepIndex(0);
     };
-    //#endregion timer functions
+
+    const [activeStepIndex, setActiveStepIndex] = useState(0); // TODO: should it be a state
+    const [remaningTime, setRemainingTime] = useState<number>(+recipe.steps[activeStepIndex].time);
+    const intervalRef = useRef<NodeJS.Timeout | null>(null);
+    const activeStepIndexRef = useRef<number>(activeStepIndex);
 
     useEffect(() => {
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-        };
-    }, []);
-    // Cleanup interval when component unmounts
-    const [fakeItemLayout, setItemLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
+        activeStepIndexRef.current = activeStepIndex;
+    }, [activeStepIndex]);
 
-    //TODO reset count or do not count when is not running
-    const [count, setCount] = useState(0);
     useEffect(() => {
-        const intervalId = setInterval(() => {
-            if (isRunning) {
-                setCount(c => c + 1);
+        if (timerState == TimerState.Running) {
+            intervalRef.current = setInterval(() => {
+                setRemainingTime(prevTime => {
+                    if (prevTime < 1) {
+                        const nextIndex = activeStepIndexRef.current + 1;
+                        if (nextIndex < recipe.steps.length) {
+                            setActiveStepIndex(nextIndex);
+                            return +recipe.steps[nextIndex].time;
+                        }
+                        else {
+                            clearInterval(intervalRef.current!);
+                            setTimerState(TimerState.None);
+                            return 0;
+                        }
+                    }
+                    return prevTime - 1;
+                })
+            }, 1000);
+            return () => {
+                if (intervalRef.current) {
+                    clearInterval(intervalRef.current);
+                }
             }
-        }, 1000);
-        return () => clearInterval(intervalId);
-    }, [isRunning]);
+        }
 
-    const [activeStepIndex, setActiveStep] = useState(0);
+    }, [timerState])
+
 
     return (
         <View style={[styles.root]}>
@@ -273,7 +259,7 @@ export default function Page() {
                 }]}>
                     <View style={[styles.stepsHeaderView]}>
                         <Text style={[styles.stepsText]}>Steps</Text>
-                        <Text style={[styles.stepsText]}>{formatTime(time)}</Text>
+                        {/*<Text style={[styles.stepsText]}>{formatTime(time)}</Text>*/}
                     </View>
                     <ScrollView showsVerticalScrollIndicator={false}
                         scrollEventThrottle={16}
@@ -281,11 +267,12 @@ export default function Page() {
                         {
                             recipe.steps.map(
                                 (step, index) => {
-                                    const isActive: boolean = isRunning && (index === activeStepIndex);
-                                    const stepTime: number = isActive ? (+step.time - count) : +step.time;
-                                    //TODO create idle style
+                                    const isStarted = timerState !== TimerState.None;
+                                    const isActive: boolean = isStarted && (index === activeStepIndex);
+                                    const stepTime: number = isActive ? (remaningTime) : +step.time;
+
                                     return <View key={index} style={styles.stepView}>
-                                        <View style={[{ opacity: !isRunning || isActive ? 1 : 0.5 }]}>
+                                        <View style={[{ opacity: !isStarted || isActive ? 1 : 0.5 }]}>
                                             <View style={[styles.stepRowView]}>
                                                 <Text style={[styles.stepNameText, isActive && styles.activeStepNameText]}>{step.name}</Text>
                                                 <Text style={[styles.stepsTimeText, isActive && styles.activeStepsTimeText]}>{stepTime}</Text>
