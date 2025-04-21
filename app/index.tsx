@@ -7,8 +7,7 @@ npm run deploy
 in viranibaskurt.github.io.git repo
 git reset --hard origin/gh-pages 
 
-git remote remove origin
-git remote add origin https://github.com/viranibaskurt/brew-daily.git
+git remote remove origin && git remote add origin https://github.com/viranibaskurt/brew-daily.git
 */
 
 import {
@@ -16,7 +15,8 @@ import {
     Platform, Dimensions, Button, TouchableOpacity
 } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { TapGestureHandler, State } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
+import { playSound, preloadSounds } from './soundPlayer';
 
 const HeaderTop: number = 76;
 const HeaderBottomMargin: number = 12;
@@ -38,31 +38,30 @@ const TimeControlButtonHeight: number = 50;
 //   }`;
 
 const recipeJson: string = `{
-    "name" : "WAC\`24 1st",
-    "author": "George Stanica",
-    "method": "Inverted",
-    "coffeeAmount": "18g",
-    "paper": "1/Aesir/Rinsed",
-    "grindSize": "7/10 Medium",
-    "waterAmount": "130g",
-    "temperature": "96°C",
-    "steps": [
-      { "name": "Add Water", "desc": "Add 50g water using melodrip", "time": "5" },
-      { "name": "Wait", "desc": "Let it bloom", "time": "30" },
-      { "name": "Add Water", "desc": "Add 50g water", "time": "5" },
-      { "name": "Stir", "desc": "Stir in NSEW  motion", "time": "10" },
-      { "name": "Wait", "desc": "Give it some time", "time": "30" },
-      { "name": "Attach the Cap", "desc": "Attach cap with filter to AeroPress", "time": "5" },
-      { "name": "Remove Air", "desc": "Remove excessive air gently", "time": "10" },
-      { "name": "Swirl", "desc": "Swirl gently", "time": "5" },
-      { "name": "Flip", "desc": "Flip by holding the plunger", "time": "5" },
-      { "name": "Press", "desc": "Press until you have approx. 76-79g", "time": "30" },
-      { "name": "Dilute", "desc": "Add 50g water", "time": "30" },
-      { "name": "Add Water", "desc": "Add 20g room temperature water", "time": "5" },
-      { "name": "Enjoy", "desc": "", "time": "" }
-    ]
-  }`;
-
+  "name" : "WAC\`24 1st",
+  "author": "George Stanica",
+  "method": "Inverted",
+  "coffeeAmount": "18g",
+  "paper": "1/Aesir/Rinsed",
+  "grindSize": "7/10 Medium",
+  "waterAmount": "130g",
+  "temperature": "96°C",
+  "steps": [
+    { "name": "Add Water", "desc": "Add 50g water using melodrip", "time": "5" },
+    { "name": "Wait", "desc": "Let it bloom", "time": "30" },
+    { "name": "Add Water", "desc": "Add 50g water", "time": "5" },
+    { "name": "Stir", "desc": "Stir in NSEW  motion", "time": "10" },
+    { "name": "Wait", "desc": "Give it some time", "time": "30" },
+    { "name": "Attach the Cap", "desc": "Attach cap with filter to AeroPress", "time": "5" },
+    { "name": "Remove the Air", "desc": "Remove the excessive air", "time": "10" },
+    { "name": "Swirl", "desc": "Swirl gently", "time": "5" },
+    { "name": "Flip", "desc": "Flip by holding the plunger", "time": "5" },
+    { "name": "Press", "desc": "Press until you have approx. 76-79g", "time": "30" },
+    { "name": "Dilute", "desc": "Add 50g water", "time": "30" },
+    { "name": "Add Water", "desc": "Add 20g room temperature water", "time": "5" },
+    { "name": "Enjoy", "desc": "", "time": "" }
+  ]
+}`;
 
 const SourceCodeProRegular: string = 'SourceCodePro-Regular'
 const SourceCodeProSemiBold: string = 'SourceCodePro-SemiBold'
@@ -183,7 +182,7 @@ export default function Page() {
     const handleStart = () => {
         setTimerState(TimerState.Running);
         setActiveStepIndex(0);
-        setRemainingTime(+recipe.steps[activeStepIndex].time);
+        setRemainingTime(+recipe.steps[0].time);
     };
 
     const handlePause = () => {
@@ -197,24 +196,23 @@ export default function Page() {
     // Function to reset the timer
     const handleReset = () => {
         setTimerState(TimerState.None);
-        setActiveStepIndex(0);
+        setActiveStepIndex(0); //TODO active step and remaning time are dependent
+        setRemainingTime(+recipe.steps[0].time);
     };
 
     const handleDoubleTap = (index: number) => {
-        console.log("double tap");
-        if(timerState===TimerState.None)
-        {
+        if (timerState === TimerState.None) {
             return;
         }
         setActiveStepIndex(index);
         setRemainingTime(+recipe.steps[index].time);
-
     }
 
-    const [activeStepIndex, setActiveStepIndex] = useState(0); // TODO: should it be a state
+    const [activeStepIndex, setActiveStepIndex] = useState(0);
+    const activeStepIndexRef = useRef<number>(activeStepIndex);
     const [remaningTime, setRemainingTime] = useState<number>(+recipe.steps[activeStepIndex].time);
     const intervalRef = useRef<NodeJS.Timeout | null>(null);
-    const activeStepIndexRef = useRef<number>(activeStepIndex);
+
 
     useEffect(() => {
         activeStepIndexRef.current = activeStepIndex;
@@ -236,6 +234,13 @@ export default function Page() {
                             return 0;
                         }
                     }
+
+                    if (prevTime - 1 <= 3 && prevTime - 1 >= 1) {
+                        playSound('bip');
+                    }
+                    else if (prevTime - 1 < 1) {
+                        playSound('bop');
+                    }
                     return prevTime - 1;
                 })
             }, 1000);
@@ -247,6 +252,28 @@ export default function Page() {
         }
 
     }, [timerState])
+
+    useEffect(() => {
+        preloadSounds();
+    }, []);
+
+    const didMount = useRef(false)
+    useEffect(() => {
+        if (!didMount.current) {
+            didMount.current = true;
+            return;
+        }
+
+        if (timerState !== TimerState.Running) {
+            return;
+        }
+
+        const step = recipe.steps[activeStepIndex];
+        if (step) {
+            playSound(step.name);
+        }
+
+    }, [activeStepIndex, timerState]);
 
     return (
         <View style={[styles.root]}>
@@ -272,42 +299,43 @@ export default function Page() {
                         <Text style={[styles.stepsText]}>Steps</Text>
                         {/*<Text style={[styles.stepsText]}>{formatTime(time)}</Text>*/}
                     </View>
-                    <ScrollView showsVerticalScrollIndicator={false}
-                        scrollEventThrottle={16}
-                        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollOffsetValueY } } }], { useNativeDriver: false })}>
-                        {
-                            recipe.steps.map(
-                                (step, index) => {
-                                    const isStarted = timerState !== TimerState.None;
-                                    const isActive: boolean = isStarted && (index === activeStepIndex);
-                                    const stepTime: number = isActive ? (remaningTime) : +step.time;
+                    <GestureHandlerRootView >
+                        <ScrollView showsVerticalScrollIndicator={false}
+                            scrollEnabled={true}
+                            scrollEventThrottle={16}
+                            onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollOffsetValueY } } }], { useNativeDriver: false })}>
+                            {
+                                recipe.steps.map(
+                                    (step, index) => {
+                                        const isStarted = timerState !== TimerState.None;
+                                        const isActive: boolean = isStarted && (index === activeStepIndex);
+                                        const stepTime: number = isActive ? (remaningTime) : +step.time;
 
-                                    return <TapGestureHandler
-                                        key={index}
-                                        numberOfTaps={2}
-                                        maxDelayMs={300}
-                                        onHandlerStateChange={
-                                            ({ nativeEvent }) => {
-                                                if (nativeEvent.state === State.ACTIVE) {
-                                                    handleDoubleTap(index);
-                                                }
-                                            }}>
-                                        <View key={index} style={styles.stepView}>
-                                            <View style={[{ opacity: !isStarted || isActive ? 1 : 0.5 }]}>
-                                                <View style={[styles.stepRowView]}>
-                                                    <Text style={[styles.stepNameText, isActive && styles.activeStepNameText]}>{step.name}</Text>
-                                                    <Text style={[styles.stepsTimeText, isActive && styles.activeStepsTimeText]}>{+step.time !== 0 ? stepTime : ""}</Text>
+                                        return <GestureDetector
+                                            key={index}
+                                            touchAction='auto'
+                                            gesture={
+                                                Gesture.Tap().numberOfTaps(2).onEnd((_event, success) => {
+                                                    if (success)
+                                                        handleDoubleTap(index);
+                                                })}>
+                                            <View style={styles.stepView}>
+                                                <View style={[{ opacity: !isStarted || isActive ? 1 : 0.5 }]}>
+                                                    <View style={[styles.stepRowView]}>
+                                                        <Text style={[styles.stepNameText, isActive && styles.activeStepNameText]}>{step.name}</Text>
+                                                        <Text style={[styles.stepsTimeText, isActive && styles.activeStepsTimeText]}>{+step.time !== 0 ? stepTime : ""}</Text>
+                                                    </View>
+                                                    <Text style={[styles.stepsDescText, isActive && styles.activeStepsDescText]}>{step.desc}</Text>
                                                 </View>
-                                                <Text style={[styles.stepsDescText, isActive && styles.activeStepsDescText]}>{step.desc}</Text>
+                                                <View style={styles.horizontalLine} />
                                             </View>
-                                            <View style={styles.horizontalLine} />
-                                        </View>
-                                    </TapGestureHandler>
-                                }
-                            )
-                        }
-                        <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} />
-                    </ScrollView>
+                                        </GestureDetector>
+                                    }
+                                )
+                            }
+                            <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} />
+                        </ScrollView>
+                    </GestureHandlerRootView>
                 </Animated.View>
             </View >
             <View style={[styles.buttonsContainer]}>
@@ -519,7 +547,7 @@ const styles = StyleSheet.create(
             marginBottom: getRatio(12),
         },
         activeStepsTimeText: {
-            fontSize: 14,
+            fontSize: 18,
             color: '#181818',
             fontFamily: SourceCodeProRegular,
             marginRight: getRatio(4),
