@@ -1,7 +1,15 @@
 /*
+    -sound doesn't play reliably.
+    -performance problem while swiping
+    -icons
+    -the current steps stays on the top while scrolling
+    -it moves up but doesn't scroll until the scroll window reaches the top
+*/
+
+
+/*
 Deploying 
-git remote remove origin
-git remote add origin https://github.com/viranibaskurt/viranibaskurt.github.io.git
+git remote remove origin && git remote add origin https://github.com/viranibaskurt/viranibaskurt.github.io.git
 npm run deploy
 
 in viranibaskurt.github.io.git repo
@@ -17,6 +25,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react'
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import { playSound, preloadSounds } from './soundPlayer';
+import { clearCache, initSounds, play } from './SoundPlayer/elevenLabsTTS';
 
 const HeaderTop: number = 76;
 const HeaderBottomMargin: number = 12;
@@ -38,30 +47,57 @@ const TimeControlButtonHeight: number = 50;
 //   }`;
 
 const recipeJson: string = `{
-  "name" : "WAC\`24 1st",
-  "author": "George Stanica",
-  "method": "Inverted",
-  "coffeeAmount": "18g",
-  "paper": "1/Aesir/Rinsed",
-  "grindSize": "7/10 Medium",
-  "waterAmount": "130g",
-  "temperature": "96°C",
-  "steps": [
-    { "name": "Add Water", "desc": "Add 50g water using melodrip", "time": "5" },
-    { "name": "Wait", "desc": "Let it bloom", "time": "30" },
-    { "name": "Add Water", "desc": "Add 50g water", "time": "5" },
-    { "name": "Stir", "desc": "Stir in NSEW  motion", "time": "10" },
-    { "name": "Wait", "desc": "Give it some time", "time": "30" },
-    { "name": "Attach the Cap", "desc": "Attach cap with filter to AeroPress", "time": "5" },
-    { "name": "Remove the Air", "desc": "Remove the excessive air", "time": "10" },
-    { "name": "Swirl", "desc": "Swirl gently", "time": "5" },
-    { "name": "Flip", "desc": "Flip by holding the plunger", "time": "5" },
-    { "name": "Press", "desc": "Press until you have approx. 76-79g", "time": "30" },
-    { "name": "Dilute", "desc": "Add 50g water", "time": "30" },
-    { "name": "Add Water", "desc": "Add 20g room temperature water", "time": "5" },
-    { "name": "Enjoy", "desc": "", "time": "" }
-  ]
-}`;
+    "name" : "WAC\`24 1st",
+    "author": "George Stanica",
+    "method": "Inverted",
+    "coffeeAmount": "18g",
+    "paper": "1/Aesir/Rinsed",
+    "grindSize": "7/10 Medium",
+    "waterAmount": "130g",
+    "temperature": "96°C",
+    "steps": [
+      { "name": "Add Water", "desc": "Add 50g water using melodrip", "time": "5" },
+      { "name": "Wait", "desc": "Let it bloom", "time": "5" },
+      { "name": "Add Water", "desc": "Add 50g water", "time": "5" },
+      { "name": "Stir", "desc": "Stir in NSEW  motion", "time": "5" },
+      { "name": "Wait", "desc": "Give it some time", "time": "5" },
+      { "name": "Attach the Cap", "desc": "Attach cap with filter to AeroPress", "time": "5" },
+      { "name": "Remove the Air", "desc": "Remove the excessive air", "time": "5" },
+      { "name": "Swirl", "desc": "Swirl gently", "time": "5" },
+      { "name": "Flip", "desc": "Flip by holding the plunger", "time": "5" },
+      { "name": "Press", "desc": "Press until you have approx. 76-79g", "time": "30" },
+      { "name": "Dilute", "desc": "Add 50g water", "time": "30" },
+      { "name": "Add Water", "desc": "Add 20g room temperature water", "time": "5" },
+      { "name": "Enjoy", "desc": "", "time": "" }
+    ]
+  }`;
+
+
+// const recipeJson: string = `{
+//   "name" : "WAC\`24 1st",
+//   "author": "George Stanica",
+//   "method": "Inverted",
+//   "coffeeAmount": "18g",
+//   "paper": "1/Aesir/Rinsed",
+//   "grindSize": "7/10 Medium",
+//   "waterAmount": "130g",
+//   "temperature": "96°C",
+//   "steps": [
+//     { "name": "Add Water", "desc": "Add 50g water using melodrip", "time": "5" },
+//     { "name": "Wait", "desc": "Let it bloom", "time": "30" },
+//     { "name": "Add Water", "desc": "Add 50g water", "time": "5" },
+//     { "name": "Stir", "desc": "Stir in NSEW  motion", "time": "10" },
+//     { "name": "Wait", "desc": "Give it some time", "time": "30" },
+//     { "name": "Attach the Cap", "desc": "Attach cap with filter to AeroPress", "time": "5" },
+//     { "name": "Remove the Air", "desc": "Remove the excessive air", "time": "10" },
+//     { "name": "Swirl", "desc": "Swirl gently", "time": "5" },
+//     { "name": "Flip", "desc": "Flip by holding the plunger", "time": "5" },
+//     { "name": "Press", "desc": "Press until you have approx. 76-79g", "time": "30" },
+//     { "name": "Dilute", "desc": "Add 50g water", "time": "30" },
+//     { "name": "Add Water", "desc": "Add 20g room temperature water", "time": "5" },
+//     { "name": "Enjoy", "desc": "", "time": "" }
+//   ]
+// }`;
 
 const SourceCodeProRegular: string = 'SourceCodePro-Regular'
 const SourceCodeProSemiBold: string = 'SourceCodePro-SemiBold'
@@ -183,6 +219,7 @@ export default function Page() {
         setTimerState(TimerState.Running);
         setActiveStepIndex(0);
         setRemainingTime(+recipe.steps[0].time);
+        console.log('play');
     };
 
     const handlePause = () => {
@@ -236,7 +273,7 @@ export default function Page() {
                     }
 
                     if (prevTime - 1 <= 3 && prevTime - 1 >= 1) {
-                        playSound('bip');
+                        playSound('bip' + (prevTime - 1));
                     }
                     else if (prevTime - 1 < 1) {
                         playSound('bop');
@@ -254,7 +291,7 @@ export default function Page() {
     }, [timerState])
 
     useEffect(() => {
-        preloadSounds();
+        // preloadSounds();
     }, []);
 
     const didMount = useRef(false)
@@ -270,10 +307,20 @@ export default function Page() {
 
         const step = recipe.steps[activeStepIndex];
         if (step) {
-            playSound(step.name);
+            // playSound(step.name);
+            play(activeStepIndex);
         }
 
     }, [activeStepIndex, timerState]);
+
+    useEffect(() => {
+        const loadSounds = async () => {
+            // await clearCache();
+            await initSounds(recipe.name, recipe.steps.map(item => item.name));
+        };
+
+        loadSounds();
+    }, []);
 
     return (
         <View style={[styles.root]}>
