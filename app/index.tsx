@@ -350,6 +350,7 @@ export default function Page() {
                         <ScrollView showsVerticalScrollIndicator={false}
                             scrollEnabled={true}
                             scrollEventThrottle={16}
+                            //TODO shadow dom
                             onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollOffsetValueY } } }], { useNativeDriver: false })}>
                             {
                                 recipe.steps.map(
@@ -357,7 +358,8 @@ export default function Page() {
                                         const isStarted = timerState !== TimerState.None;
                                         const isActive: boolean = isStarted && (index === activeStepIndex);
                                         const stepTime: number = isActive ? (remaningTime) : +step.time;
-
+                                        
+                                        //TODO take this out
                                         return <GestureDetector
                                             key={index}
                                             touchAction='auto'
