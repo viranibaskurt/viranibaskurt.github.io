@@ -29,8 +29,6 @@ import { clearCache, initSounds, play } from './SoundPlayer/elevenLabsTTS';
 
 const HeaderTop: number = 76;
 const HeaderBottomMargin: number = 12;
-const maxHeight = getRatio(200);
-const minHeight = getRatio(0);
 const TimeControlButtonBottomMargin: number = 48;
 const TimeControlButtonHeight: number = 50;
 
@@ -106,21 +104,8 @@ const SourceCodeProBold: string = 'SourceCodePro-Bold'
 const screenHeight: number = Dimensions.get('window').height;
 const screenWidth: number = Math.min(Dimensions.get('window').width, screenHeight * 0.46);
 
-function getRatio(sizeInPixel: number): number {
-    // return Math.round((screenWidth * sizeInPixel) / designWidth);
-    return sizeInPixel;
-}
-
-function formatTime(totalSeconds: number): string {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
-
-    // Convert minutes and seconds to strings padded with zeros if needed
-    const minutesStr = String(minutes).padStart(2, '0');
-    const secondsStr = String(seconds).padStart(2, '0');
-
-    return `${minutesStr}:${secondsStr}`;
-}
+const HeaderHeight = 100;
+const InfoHeight = 200;
 
 type CustomButtonProps = {
     title: string;
@@ -188,25 +173,6 @@ export default function Page() {
     const recipe: Recipe = JSON.parse(recipeJson);
 
     const scrollOffsetValueY = useRef(new Animated.Value(0)).current;
-    const animateHeaderHeight =
-        scrollOffsetValueY.interpolate({
-            inputRange: [0, maxHeight - minHeight],
-            outputRange: [maxHeight, minHeight],
-            extrapolate: 'clamp'
-        });
-
-    const cornerRadius = scrollOffsetValueY.interpolate({
-        inputRange: [0, (maxHeight - minHeight) * 0.01, maxHeight - minHeight],
-        outputRange: [0.0, 10.0, 15.0],
-        extrapolate: 'clamp'
-    })
-
-    const backgroundColor = scrollOffsetValueY.interpolate({
-        inputRange: [0, 0.01],
-        outputRange: ['#FFFFFF', '#F1F1F1'],
-        extrapolate: 'clamp',
-    });
-    const [fakeItemLayout, setItemLayout] = useState({ x: 0, y: 0, width: 0, height: 0 });
 
     enum TimerState {
         None,
@@ -219,7 +185,6 @@ export default function Page() {
         setTimerState(TimerState.Running);
         setActiveStepIndex(0);
         setRemainingTime(+recipe.steps[0].time);
-        console.log('play');
     };
 
     const handlePause = () => {
@@ -290,10 +255,6 @@ export default function Page() {
 
     }, [timerState])
 
-    useEffect(() => {
-        // preloadSounds();
-    }, []);
-
     const didMount = useRef(false)
     useEffect(() => {
         if (!didMount.current) {
@@ -324,27 +285,19 @@ export default function Page() {
 
     return (
         <View style={[styles.root]}>
-            <View style={[styles.rootContainer, { width: rootWidth }]}>
-                <View onLayout={event => {
-                    const layout = event.nativeEvent.layout;
-                    setItemLayout(layout);
-                }} style={[styles.titleContainer,]}>
+            <View style={[styles.contentRoot, { width: rootWidth }]}>
+                <View style={[styles.header,]}>
                     <Text style={[styles.recipeName,]}>{recipe.name}</Text>
                     <Text style={[styles.author,]}>{recipe.author}</Text>
                 </View>
-                <Animated.View style={[styles.containerFake, { opacity: 0, height: animateHeaderHeight }]}>
-                    <InfoRow infoLeft={'fake'} infoRight={recipe.coffeeAmount} />
-                    <InfoRow infoLeft={recipe.paper} infoRight={recipe.coffeeAmount} />
+                <Animated.View style={[styles.info]}>
+                    <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
+                    <InfoRow infoLeft={recipe.paper} infoRight={recipe.grindSize} />
                     <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
                 </Animated.View>
-                <Animated.View style={[styles.stepsContainer,
-                {
-                    borderTopLeftRadius: cornerRadius, borderTopRightRadius: cornerRadius,
-
-                }]}>
-                    <View style={[styles.stepsHeaderView]}>
+                <Animated.View style={[styles.steps, {}]}>
+                    <View style={[styles.stepsHeader]}>
                         <Text style={[styles.stepsText]}>Steps</Text>
-                        {/*<Text style={[styles.stepsText]}>{formatTime(time)}</Text>*/}
                     </View>
                     <GestureHandlerRootView >
                         <ScrollView showsVerticalScrollIndicator={false}
@@ -358,7 +311,7 @@ export default function Page() {
                                         const isStarted = timerState !== TimerState.None;
                                         const isActive: boolean = isStarted && (index === activeStepIndex);
                                         const stepTime: number = isActive ? (remaningTime) : +step.time;
-                                        
+
                                         //TODO take this out
                                         return <GestureDetector
                                             key={index}
@@ -382,49 +335,40 @@ export default function Page() {
                                     }
                                 )
                             }
-                            <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} />
+                            <View style={{ height: TimeControlButtonBottomMargin + TimeControlButtonHeight }} /> {/*so the last step is above the buttons*/}
                         </ScrollView>
                     </GestureHandlerRootView>
                 </Animated.View>
             </View >
             <View style={[styles.buttonsContainer]}>
                 {timerState === TimerState.None && (
-                    <CustomButton title='Start' onPress={() => {
-                        setTimerState(TimerState.Running);
-                        handleStart();
-                    }
-                    } width={getRatio(224)} />
+                    <CustomButton
+                        title='Start'
+                        onPress={handleStart}
+                        width={224} />
                 )}
                 {timerState === TimerState.Running && (
-                    <CustomButton title='Pause' onPress={() => {
-                        setTimerState(TimerState.Pause);
-                        handlePause();
-                    }
-
-                    } width={getRatio(224)} />
+                    <CustomButton
+                        title='Pause'
+                        onPress={handlePause}
+                        width={224} />
                 )}
                 {timerState === TimerState.Pause && (
                     <View style={[styles.buttonRow]}>
-                        <CustomButton title='Reset' onPress={() => {
-                            setTimerState(TimerState.None);
-                            handleReset();
-                        }
-                        } width={getRatio(83)} textColor='#FFFFFF' buttonColor='#3C3C43' />
-                        <View style={{ width: getRatio(24) }} />
-                        <CustomButton title='Resume' onPress={() => {
-                            setTimerState(TimerState.Running);
-                            handleResume();
-                        }
-                        } width={getRatio(203)} />
+                        <CustomButton
+                            title='Reset'
+                            onPress={handleReset}
+                            width={83}
+                            textColor='#FFFFFF'
+                            buttonColor='#3C3C43' />
+                        <View style={{ width: 24 }} />
+                        <CustomButton
+                            title='Resume'
+                            onPress={handleResume}
+                            width={203} />
                     </View>
                 )}
             </View>
-            <Animated.View style={[styles.container, { opacity: 1, top: fakeItemLayout.y + fakeItemLayout.height + HeaderBottomMargin }]}>
-                <InfoRow infoLeft={recipe.method} infoRight={recipe.coffeeAmount} />
-                <InfoRow infoLeft={recipe.paper} infoRight={recipe.grindSize} />
-                <InfoRow infoLeft={recipe.waterAmount} infoRight={recipe.temperature} />
-            </Animated.View>
-            <Animated.View style={[styles.background, { backgroundColor: backgroundColor }]}></Animated.View>
         </View>
     );
 }
@@ -447,64 +391,39 @@ const styles = StyleSheet.create(
             justifyContent: 'center',
         },
         root: {
-            // width: getRatio(designWidth),
-            // height: getRatio(designHeight),
             width: '100%',
             height: '100%',
             alignItems: 'center',
             alignSelf: 'center',
             justifyContent: 'center',
         },
-        rootContainer: {
-            // width: getRatio(designWidth),
-            // height: getRatio(designHeight),
-            // flex: 1,
+        contentRoot: {
             height: '100%',
             alignItems: 'center',
             alignSelf: Platform.OS === 'web' ? 'center' : 'stretch',
             justifyContent: 'center',
-            // backgroundColor: '#FFFFFF'
         },
-        infoContainer: {
-            backgroundColor: 'powderblue',
-            position: 'absolute',
+        info: {
             justifyContent: 'center',
             alignItems: 'center',
-            // top: HeaderTop + HeaderSize,
-            left: 0,
-            right: 0,
-            // paddingTop: 0,
-            zIndex: 1,
-        },
-        container: {
-            // flex: 1,
-            position: 'absolute',
-            zIndex: -1,
-            justifyContent: 'center',
-            alignItems: 'center',
-            // backgroundColor: 'powderblue',
-            height: maxHeight,
+            height: InfoHeight,
             width: 300,
         },
         containerFake: {
-            // flex: 1,
             justifyContent: 'center',
-            // height: InfoViewHeight,
             alignItems: 'center',
-            // backgroundColor: 'red',
             width: 300,
 
         },
         row: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingVertical: getRatio(10),
-            paddingHorizontal: getRatio(60),
+            paddingVertical: 10,
+            paddingHorizontal: 60,
             justifyContent: 'space-evenly',
-            // backgroundColor: 'pink'
         },
         column: {
-            width: getRatio(98),
+            width: 98,
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
@@ -535,9 +454,10 @@ const styles = StyleSheet.create(
             textAlign: 'center',
             fontFamily: SourceCodeProRegular,
         },
-        titleContainer: {
+        header: {
             marginTop: HeaderTop,
             marginBottom: HeaderBottomMargin,
+            height: HeaderHeight
         },
         recipeName: {
             textAlign: 'center',
@@ -545,7 +465,7 @@ const styles = StyleSheet.create(
             fontFamily: SourceCodeProRegular,
             color: '#181818',
             fontWeight: '600',
-            marginBottom: getRatio(4),
+            marginBottom: 4,
         },
         author: {
             textAlign: 'center',
@@ -553,16 +473,16 @@ const styles = StyleSheet.create(
             fontFamily: SourceCodeProRegular,
             color: '#666666',
         },
-        stepsContainer: {
+        steps: {
             width: '100%',
             flex: 1,
             alignContent: 'space-around',
-            marginBottom: getRatio(16),
-            paddingRight: getRatio(40),
-            paddingLeft: getRatio(40),
+            marginBottom: 16,
+            paddingRight: 40,
+            paddingLeft: 40,
             backgroundColor: '#FFFFFF',
         },
-        stepsHeaderView: {
+        stepsHeader: {
             marginTop: 12,
             marginBottom: 4,
             flexDirection: 'row',
@@ -570,13 +490,13 @@ const styles = StyleSheet.create(
             justifyContent: 'space-between',
         },
         stepView: {
-            marginTop: getRatio(24),
+            marginTop: 24,
         },
         stepRowView: {
             flexDirection: 'row',
             flexWrap: 'wrap',
             justifyContent: 'space-between',
-            marginBottom: getRatio(12),
+            marginBottom: 12,
         },
         stepsText: {
             fontSize: 18,
@@ -593,13 +513,13 @@ const styles = StyleSheet.create(
             fontSize: 18,
             fontFamily: SourceCodeProRegular,
             color: '#666666',
-            marginBottom: getRatio(12),
+            marginBottom: 12,
         },
         activeStepsTimeText: {
             fontSize: 18,
             color: '#181818',
             fontFamily: SourceCodeProRegular,
-            marginRight: getRatio(4),
+            marginRight: 4,
         },
         stepNameText: {
             fontSize: 14,
@@ -611,13 +531,13 @@ const styles = StyleSheet.create(
             fontSize: 14,
             fontFamily: SourceCodeProRegular,
             color: '#666666',
-            marginBottom: getRatio(12),
+            marginBottom: 12,
         },
         stepsTimeText: {
             fontSize: 14,
             color: '#181818',
             fontFamily: SourceCodeProRegular,
-            marginRight: getRatio(4),
+            marginRight: 4,
         },
         verticleLine: {
             width: "0.1%",
@@ -642,7 +562,7 @@ const styles = StyleSheet.create(
             backgroundColor: 'white',
             borderRadius: 8,
             borderWidth: 1,
-            width: getRatio(224),
+            width: 224,
             height: TimeControlButtonHeight,
             justifyContent: 'center',
         },

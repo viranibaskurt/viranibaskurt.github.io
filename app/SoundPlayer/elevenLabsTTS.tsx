@@ -15,7 +15,7 @@ export async function initSounds(cacheId: string, steps: Array<string>) {
     uris = [];
     try {
         for (let i = 0; i < steps.length; i++) {
-            const fileName=`${cacheId}_${i}`;
+            const fileName = `${cacheId}_${i}`;
             const fileUri = `${FileSystem.cacheDirectory}${fileName}.mp3`;
             const fileInfo = await FileSystem.getInfoAsync(fileUri);
             if (fileInfo.exists) {
@@ -63,6 +63,7 @@ export async function initSounds(cacheId: string, steps: Array<string>) {
 }
 
 export async function play(stepIndex: number) {
+    return; //TODO enable it
     const { sound } = await Audio.Sound.createAsync({ uri: uris[stepIndex] });
     try {
         await sound.playAsync();
