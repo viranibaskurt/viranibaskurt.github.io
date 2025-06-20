@@ -107,6 +107,13 @@ const screenWidth: number = Math.min(Dimensions.get('window').width, screenHeigh
 const HeaderHeight = 100;
 const InfoHeight = 200;
 
+enum TimerState {
+    None,
+    Running,
+    Pause,
+}
+
+// #region Control Buttons
 type CustomButtonProps = {
     title: string;
     onPress: () => void;
@@ -126,6 +133,46 @@ const CustomButton: React.FC<CustomButtonProps> = ({ title, onPress, width, butt
         </TouchableOpacity >
     );
 };
+interface TimerControlProps {
+    timerState: TimerState;
+    handleStart: () => void;
+    handlePause: () => void;
+    handleReset: () => void;
+    handleResume: () => void;
+}
+
+const ControlButtons: React.FC<TimerControlProps> = ({ timerState, handleStart, handlePause, handleReset, handleResume }) => {
+    return (<View style={[styles.buttonsContainer]}>
+        {timerState === TimerState.None && (
+            <CustomButton
+            title='Start'
+            onPress={handleStart}
+            width={224} />
+        )}
+        {timerState === TimerState.Running && (
+            <CustomButton
+            title='Pause'
+            onPress={handlePause}
+            width={224} />
+        )}
+        {timerState === TimerState.Pause && (
+            <View style={[styles.buttonRow]}>
+                <CustomButton
+                    title='Reset'
+                    onPress={handleReset}
+                    width={83}
+                    textColor='#FFFFFF'
+                    buttonColor='#3C3C43' />
+                <View style={{ width: 24 }} />
+                <CustomButton
+                    title='Resume'
+                    onPress={handleResume}
+                    width={203} />
+            </View>
+        )}
+    </View>);
+}
+// #endregion Control Buttons
 
 type InfoRowProps = {
     infoLeft: string;
@@ -171,16 +218,9 @@ export default function Page() {
     }
 
     const recipe: Recipe = JSON.parse(recipeJson);
-
     const scrollOffsetValueY = useRef(new Animated.Value(0)).current;
 
-    enum TimerState {
-        None,
-        Running,
-        Pause,
-    }
     const [timerState, setTimerState] = useState(TimerState.None);
-
     const handleStart = () => {
         setTimerState(TimerState.Running);
         setActiveStepIndex(0);
@@ -194,6 +234,7 @@ export default function Page() {
     const handleResume = () => {
         setTimerState(TimerState.Running);
     };
+
 
     // Function to reset the timer
     const handleReset = () => {
@@ -340,39 +381,14 @@ export default function Page() {
                     </GestureHandlerRootView>
                 </Animated.View>
             </View >
-            <View style={[styles.buttonsContainer]}>
-                {timerState === TimerState.None && (
-                    <CustomButton
-                        title='Start'
-                        onPress={handleStart}
-                        width={224} />
-                )}
-                {timerState === TimerState.Running && (
-                    <CustomButton
-                        title='Pause'
-                        onPress={handlePause}
-                        width={224} />
-                )}
-                {timerState === TimerState.Pause && (
-                    <View style={[styles.buttonRow]}>
-                        <CustomButton
-                            title='Reset'
-                            onPress={handleReset}
-                            width={83}
-                            textColor='#FFFFFF'
-                            buttonColor='#3C3C43' />
-                        <View style={{ width: 24 }} />
-                        <CustomButton
-                            title='Resume'
-                            onPress={handleResume}
-                            width={203} />
-                    </View>
-                )}
-            </View>
+            <ControlButtons timerState={timerState}
+                handleStart={handleStart}
+                handlePause={handlePause}
+                handleReset={handleReset}
+                handleResume={handleResume} />
         </View>
     );
 }
-
 
 /*
 https://clintgoodman27.medium.com/how-to-make-your-react-native-project-work-for-the-web-560f0cba72e2
